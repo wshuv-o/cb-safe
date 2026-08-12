@@ -1,0 +1,12 @@
+numpy
+pandas
+matplotlib
+scikit-learn
+torch
+torchvision
+cryptography
+
+# liboqs-python (import name: oqs) is required ONLY for the code-based/lattice KEM
+# overhead and utility benchmarks (experiments/run_overhead.py, run_utility.py).
+# It is imported lazily, so every other experiment runs without it.
+# Install per https://github.com/open-quantum-safe/liboqs-python

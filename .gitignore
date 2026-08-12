@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.pyo
+.ipynb_checkpoints/
+.DS_Store
+
+# generated artifacts (regenerated from results/ by experiments/figures.py and tables.py)
+results/figs/
+results/tables/
+
+# local caches / downloaded datasets
+data/
+*.log

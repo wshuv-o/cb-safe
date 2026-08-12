@@ -1,0 +1,10 @@
+name,family,claimed_nist_level,public_key_bytes,ciphertext_bytes,shared_secret_bytes,roundtrip_ok,keygen_ms,encap_ms,decap_ms
+hqc-128,code-based,1,2249,4433,64,True,6.3243,12.448,19.7833
+hqc-192,code-based,3,4522,8978,64,True,18.5323,36.782,56.8395
+hqc-256,code-based,5,7245,14421,64,True,34.5761,69.9075,107.917
+mlkem-512,lattice,1,800,768,32,True,0.0802,0.0977,0.0322
+mlkem-768,lattice,3,1184,1088,32,True,0.0945,0.1127,0.047
+mlkem-1024,lattice,5,1568,1568,32,True,0.1112,0.1309,0.0663
+kyber-512,lattice,1,800,768,32,True,0.1358,0.1088,0.0441
+kyber-768,lattice,3,1184,1088,32,True,0.1514,0.1278,0.0643
+kyber-1024,lattice,5,1568,1568,32,True,0.1853,0.1625,0.097
