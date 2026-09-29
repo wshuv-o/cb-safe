@@ -1,8 +1,3 @@
-"""Gamma-basin figure: test accuracy vs sign-flip amplification gamma (CIFAR-10,
-f=0.2, N=30, 3 seeds). Shows the coordinate-wise collapse holds across the whole
-gamma>=gamma* basin (not a knife-edge at gamma*=5), while CB-SAFE+ stays top-tier.
-gamma=5 is read from the main results; other gamma from results/gamma_sweep."""
-
 import _bootstrap  # noqa: F401
 
 import glob

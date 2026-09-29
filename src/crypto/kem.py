@@ -1,20 +1,3 @@
-"""Thin, KEM-agnostic wrapper over liboqs (Open Quantum Safe).
-
-The rest of the framework talks to KEMs only through this module, so the secure
-aggregation protocol never hard-codes whether the post-quantum primitive is the
-code-based HQC or the lattice-based Kyber / ML-KEM. Swapping the KEM is a one-line
-config change (the whole point of the "cryptographic diversity" contribution).
-
-Logical names (lower-case, used in configs) map to liboqs mechanism strings:
-
-    hqc-128 / hqc-192 / hqc-256          -> HQC-*        (code-based, the contribution)
-    mlkem-512 / mlkem-768 / mlkem-1024   -> ML-KEM-*     (the standardized Kyber)
-    kyber-512 / kyber-768 / kyber-1024   -> Kyber*       (round-3 Kyber, lattice baseline)
-
-ML-KEM is the FIPS-203 standardization of Kyber; prefer mlkem-* for the lattice baseline
-and keep kyber-* available for direct comparison with older literature.
-"""
-
 from __future__ import annotations
 
 import os

@@ -1,5 +1,3 @@
-"""Run the jobs of an experiment config: filtering, sharding, resuming."""
-
 from __future__ import annotations
 
 import os

@@ -1,5 +1,3 @@
-"""CIFAR-10 loading and Dirichlet non-IID partitioning across clients."""
-
 from __future__ import annotations
 
 import os

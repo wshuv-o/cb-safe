@@ -1,21 +1,3 @@
-"""Dataset loading, partitioning, and the server root set.
-
-Clients receive a Dirichlet(alpha) label-skew partition of the training set. Methods
-that use a server root dataset (CB-SAFE+, FLTrust, the FedGT harness) get a small
-root set held out from every client. Three root policies reproduce how the reported
-runs were prepared:
-
-  per_method       root set drawn from the whole training set and removed from the
-                   clients only when the method uses it (CIFAR-10, FashionMNIST,
-                   EMNIST grids and sweeps)
-  always_exclude   root set drawn from the whole training set and always removed from
-                   the clients; the server loader is passed only to methods that use it
-                   (client-population scaling, FedGT)
-  partition_pool   root set drawn from the partitioned pool, capped at a quarter of it,
-                   and always removed from the clients (Edge-IIoTset grid)
-  none             no root set (oracle upper bound)
-"""
-
 from __future__ import annotations
 
 import os

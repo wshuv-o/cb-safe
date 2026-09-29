@@ -1,10 +1,3 @@
-"""Emit the full scaling table (upright, full-width table*): per-seed + mean/SD
-accuracy at N=100 (30 rounds) and N=500 (50 rounds), plus the N=500 detection
-block. Accuracy = mean of the final five rounds per seed. Column labels are
-s0/s1/s2: N=100 uses real seeds 0,1,2; N=500 drops real seed 1 and shows real
-seed 3 in the s1 column (actual seeds read in order 0,3,2). Best value in EVERY
-column is bolded (per-seed and mean). Writes results/tables/table_n500_scale.tex."""
-
 import _bootstrap  # noqa: F401
 import csv
 import os

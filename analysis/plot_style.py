@@ -1,8 +1,3 @@
-"""Shared figure style for all CB-SAFE plots (import; do not restyle per-figure).
-Serif to match the LaTeX/IEEE body font, colour-blind-safe (Okabe-Ito), each
-series distinguished by colour AND marker AND dash, our method visually
-privileged."""
-
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402

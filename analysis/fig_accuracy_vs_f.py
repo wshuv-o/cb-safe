@@ -1,10 +1,3 @@
-"""Figure: test accuracy vs malicious fraction f under sign-flip, one line per method,
-one panel per dataset. Mirrors FedGT Fig. 1 (metric vs. #malicious): makes the
-coordinate-wise collapse instantly visible against CB-SAFE+ holding near the clean
-baseline. An oracle (perfect-detection) line appears automatically once oracle CSVs
-exist. Uses the shared plot_style. Accuracy is the last-five-round mean over seeds,
-capped at 50 rounds."""
-
 import _bootstrap  # noqa: F401
 
 import glob

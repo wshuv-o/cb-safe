@@ -1,12 +1,3 @@
-"""Experiment configuration: load YAML files and expand them into jobs.
-
-An experiment file (configs/experiments/*.yaml) names a task and a grid. Each grid
-block is a Cartesian product over its list-valued keys; blocks are concatenated, so
-an experiment can combine, for example, the sign-flip grid over every method with a
-smaller backdoor grid. Scalar keys at the top level are defaults for every job and can
-be overridden inside a block.
-"""
-
 from __future__ import annotations
 
 import itertools

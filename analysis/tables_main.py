@@ -1,6 +1,3 @@
-"""Four wide, full-width (table*) manuscript tables packed with real metrics.
-Emits LaTeX booktabs to results/tables/*.tex and prints markdown previews."""
-
 import _bootstrap  # noqa: F401
 
 import glob

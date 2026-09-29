@@ -1,5 +1,3 @@
-"""Paths and environment for the analysis scripts. Import this first."""
-
 import os
 import sys
 

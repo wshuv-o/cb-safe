@@ -1,16 +1,3 @@
-"""Loaders for the two Kaggle-hosted generalization datasets.
-
-  emnist    - EMNIST-balanced (47 classes, handwritten), auto-downloaded by
-              torchvision; a larger, harder label space than CIFAR/FashionMNIST.
-  edgeiiot  - Edge-IIoTset IoT/IIoT intrusion detection (tabular). A robust CSV
-              loader that adapts to the standard "DNN-EdgeIIoT-dataset.csv":
-              drops known leakage/identifier columns, label-encodes the multiclass
-              attack type, coerces + standardizes features, and returns tensors.
-
-Both return (train_ds, test_ds, train_labels) so the existing Dirichlet
-partitioner and client-loader code apply unchanged.
-"""
-
 from __future__ import annotations
 
 import os

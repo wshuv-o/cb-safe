@@ -1,18 +1,3 @@
-"""Multi-seed aggregation + significance testing across all datasets.
-
-Scans every results root (CIFAR-10 in results/, FashionMNIST in results/fmnist/,
-and Kaggle EMNIST/Edge-IIoTset under results/kaggle/ when returned), builds a
-long table of per-seed final metrics, and produces:
-
-  results/summary_multiseed.csv   mean +/- std per (dataset, attack, agg, f, c)
-  results/significance.csv        paired CB-SAFE+ vs each baseline, Holm-corrected
-
-Final accuracy / ASR = mean over the last 5 rounds of a run. Significance pools
-matched (dataset, attack, f, seed) cells and runs a paired t-test AND Wilcoxon
-(reported together; with 3 seeds x several cells the pooled n is large enough for
-the t-test to be meaningful), Holm-corrected across the baseline comparisons.
-"""
-
 import _bootstrap  # noqa: F401
 
 import glob

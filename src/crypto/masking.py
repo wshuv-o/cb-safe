@@ -1,15 +1,3 @@
-"""Fixed-point quantization and cryptographic mask generation for secure aggregation.
-
-Masking arithmetic is exact: float32 update vectors are quantized to fixed-point
-integers mod 2**64, masks are uniform uint64 keystream from ChaCha20, and pairwise
-masks cancel exactly on summation. The only error versus plain float aggregation is
-the quantization step (~2**-SCALE_BITS per coordinate), which run_utility.py verifies.
-
-Per-round mask seeds are derived with HKDF-SHA256 from the long-lived KEM shared
-secret and the round index, so key encapsulation happens once at setup and masks
-refresh every round (the cross-round amortization the paper claims).
-"""
-
 from __future__ import annotations
 
 import hashlib

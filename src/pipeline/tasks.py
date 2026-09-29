@@ -1,13 +1,3 @@
-"""The five experiment tasks. Each takes one Job and writes its result file.
-
-  robustness  federated training with an aggregation rule under attack
-              (every accuracy, detection, sweep, and scaling result)
-  oracle      upper bound: malicious clients excluded from round 1
-  fedgt       the published FedGT detector (BCJR decoder) at N=30
-  overhead    measured communication and computation cost per KEM
-  utility     secure versus plain aggregation, round by round, with dropouts
-"""
-
 from __future__ import annotations
 
 import csv

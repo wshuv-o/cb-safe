@@ -1,13 +1,3 @@
-"""Poisoning attacks for the robustness evaluation.
-
-Three standard attack types at malicious fraction f:
-  - labelflip: malicious clients train on labels y -> 9 - y (untargeted data poisoning)
-  - signflip:  malicious clients send -gamma * (honest delta) (model poisoning)
-  - backdoor:  malicious clients train partly on trigger-stamped images relabeled to a
-               target class; success metric is attack success rate (ASR) on a fully
-               triggered test set excluding true-target samples.
-"""
-
 from __future__ import annotations
 
 import numpy as np

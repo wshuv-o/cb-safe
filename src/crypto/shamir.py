@@ -1,13 +1,3 @@
-"""Shamir t-of-n secret sharing over GF(2**127 - 1) for 15-byte mask seeds.
-
-Used for dropout recovery: each client shares its per-round self-mask seed b_i with
-its cluster peers. The server reconstructs b_i for *surviving* clients (to remove
-their self-masks) and never learns both a client's self-mask and its pairwise seeds,
-which is the standard Bonawitz-style unmasking argument.
-
-Secrets are 15 bytes (120 bits) so they always fit below the Mersenne prime 2**127-1.
-"""
-
 from __future__ import annotations
 
 import secrets

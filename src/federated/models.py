@@ -1,5 +1,3 @@
-"""Small CNN for CIFAR-10 (~300k parameters) and flat-vector state helpers."""
-
 from __future__ import annotations
 
 import numpy as np

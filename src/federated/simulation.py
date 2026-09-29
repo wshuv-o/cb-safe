@@ -1,19 +1,3 @@
-"""In-process FL simulation: FedAvg with pluggable aggregation and attacks.
-
-One round = every client trains locally from the global model for one epoch; each
-client's update is its parameter delta. Aggregation paths:
-
-  - "fedavg":  mean of all client deltas (the plain baseline)
-  - "cluster": deltas are grouped into fixed clusters, per-cluster MEANS are formed
-               (this is exactly what CB-SAFE's secure aggregation reveals to the
-               server — the equivalence is verified bit-exactly in run_utility.py),
-               then a robust rule (mean/median/trimmed/krum) combines cluster means.
-
-The robustness sweep uses the "cluster" path with plain arithmetic for speed; the
-cryptographic path produces identical sums up to fixed-point quantization (2**-16),
-which run_utility.py demonstrates, so accuracy results transfer exactly.
-"""
-
 from __future__ import annotations
 
 import os

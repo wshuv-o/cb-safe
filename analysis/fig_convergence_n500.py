@@ -1,8 +1,3 @@
-"""Three-panel convergence at N=500 (50 rounds): one panel per seed in the
-reporting set {0,2,3}, every aggregation rule's test accuracy vs round. Shows the
-top-tier tie (CB-SAFE+ / FedGT) and the coordinate-wise collapse in one view.
-Serif / Okabe-Ito shared style; CB-SAFE+ = heavy black."""
-
 import _bootstrap  # noqa: F401
 import csv
 import os

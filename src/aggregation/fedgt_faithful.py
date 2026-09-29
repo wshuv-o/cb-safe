@@ -1,21 +1,3 @@
-"""FedGT (Xhemrishi et al., IEEE TIFS 2025): the published detection pipeline,
-ported for a like-for-like comparison at N=30 (the published configuration).
-
-It uses:
-  - their exact hardcoded n=30 parity-check matrix (12 overlapping group tests),
-  - binary group tests via KMeans clustering on (group recall, group PCA), the
-    highest-recall cluster marked clean (verbatim perform_clustering_and_testing),
-  - their BCJR trellis MAP decoder (their compiled C, called via ctypes; the
-    BCJR_4_python library and fedgt_H30.npy come from the FedGT authors' code and
-    are not redistributed here),
-  - flagging exactly nm_est clients (lowest LLR), nm_est from their #-negative-tests
-    lookup table.
-
-The group test statistic (per-group recall on the server root set) and the group
-PCA feature are computed by the caller (our shared training harness) and passed in,
-exactly as FedGT computes them from group-aggregated models.
-"""
-
 from __future__ import annotations
 
 import ctypes

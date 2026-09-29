@@ -1,15 +1,3 @@
-"""Environment sanity check.
-
-Confirms the environment is ready: liboqs exposes HQC and Kyber/ML-KEM, every KEM does a
-correct encaps/decaps round-trip, and records the first cost numbers (sizes + timing).
-
-Run:
-    OQS_INSTALL_PATH=$HOME/_oqs  python scripts/check_env.py
-(OQS_INSTALL_PATH is set automatically by src.crypto.kem if you don't export it.)
-
-Writes results/crypto_kem_bench.csv.
-"""
-
 from __future__ import annotations
 
 import csv

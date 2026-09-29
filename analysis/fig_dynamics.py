@@ -1,8 +1,3 @@
-"""Figure A: training dynamics under sign-flip. 4 datasets (cols) x 3 malicious
-fractions (rows), accuracy vs communication round, 8 aggregation rules. Mean over
-seeds; +-1 SD band for CB-SAFE+ and FedGT only. Shared y-range within a column
-(dataset). Imports plot_style (no local rcParams)."""
-
 import _bootstrap  # noqa: F401
 
 import glob

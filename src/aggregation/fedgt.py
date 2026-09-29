@@ -1,26 +1,3 @@
-"""FedGT baseline (Xhemrishi et al., IEEE TIFS 2025): identification of malicious
-clients under secure aggregation via overlapping group testing.
-
-Faithful reimplementation of the core mechanism for a like-for-like comparison:
-
-  - Clients are assigned to `n_groups` overlapping groups by a fixed binary
-    group-testing matrix A (each client in `deg` groups). The server only ever sees
-    the SUM of updates within each group (secure aggregation preserved) -- exactly
-    the constraint CB-SAFE+ also respects.
-  - Each group's aggregate is scored by a test statistic (server root-set loss
-    increase, the same signal available to any detector); groups above a threshold
-    are "positive" (contain >=1 malicious client).
-  - Decoding: a client is declared malicious if it appears in "too many" positive
-    groups (column-vs-syndrome matching, the standard group-testing decoder). FedGT
-    uses this static one-shot decode; identified clients are removed and the clean
-    groups' means are aggregated.
-
-Differences we test against CB-SAFE+: FedGT uses STATIC groups + one-shot decode
-and was designed for data poisoning; CB-SAFE+ re-randomizes groups every round and
-accumulates temporal suspicion. The head-to-head runs both under identical secure
-aggregation on the sign-flip (laundering) attack.
-"""
-
 from __future__ import annotations
 
 import numpy as np

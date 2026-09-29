@@ -1,13 +1,3 @@
-"""Robust aggregation rules applied ACROSS cluster means.
-
-This is where CB-SAFE resolves the hide-versus-inspect tension: individual updates
-are hidden inside cluster sums by secure aggregation (the server never sees them),
-and robustness operates only on the k visible cluster means. A cluster mean is
-contaminated if any member is malicious, so with malicious fraction f and cluster
-size c the probability a cluster stays clean is (1-f)**c — the quantitative
-privacy-robustness trade-off the experiments sweep.
-"""
-
 from __future__ import annotations
 
 import numpy as np

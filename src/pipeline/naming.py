@@ -1,18 +1,3 @@
-"""Result-file paths.
-
-The default name reproduces the convention every result file in results/ already
-uses, so re-running a config regenerates the same file that the tables and figures
-read:
-
-    robust_<attack>_<method>[_N<n>]_f<ff>_c<c>[_g<ggg>][_d<ddd>]_s<seed>.csv
-
-where <method> is the method key from configs/methods.yaml (for example hybrid_ov4),
-_N<n> appears only when n_clients != 30, _g only when the sign-flip amplification
-differs from 5, and _d only when the attack duty cycle differs from 1. An experiment
-can override the name with output.name, a Python format string over the job
-parameters (the delta sweep uses this).
-"""
-
 from __future__ import annotations
 
 import os

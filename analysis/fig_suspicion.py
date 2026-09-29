@@ -1,9 +1,3 @@
-"""Figure B: temporal suspicion separation (CB-SAFE+ reputation, ov1, CIFAR-10).
-Population-mean flagged fraction of malicious vs honest clients over rounds, per
-malicious fraction f, with the predicted honest rate p_h = 1-(1-f)^(c-1) and the
-warmup shaded. Faithful to the implementation: exclusion is by an adaptive gap,
-not a fixed tau; per-client lines are not logged (means only). Imports plot_style."""
-
 import _bootstrap  # noqa: F401
 
 import glob

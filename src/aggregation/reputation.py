@@ -1,30 +1,3 @@
-"""CB-SAFE+ defense: temporal group testing over privacy-preserving cluster sums.
-
-Why coordinate-wise robust rules fail under secure aggregation (the "laundering"
-effect): with cluster size c and one gamma-amplified sign-flipper per cluster, the
-cluster mean is approximately -((gamma - (c-1))/c) times an honest mean --- similar
-magnitude, inverted direction. Poisoned cluster sums are not magnitude outliers, so
-trimmed mean and median see a near-symmetric +/- cloud whose center is ~0 and
-learning stalls. The same signature, however, is directionally conspicuous.
-
-The defense (per round r):
-  1. RE-RANDOMIZE the cluster partition (fresh seeded permutation each round).
-  2. Aggregate securely within clusters; the server sees only cluster means.
-  3. Build a Krum reference from the cluster means (vector selection resists
-     laundering) and FLAG clusters whose mean opposes it (cosine < 0).
-  4. Every member of a flagged cluster gets +1 suspicion; suspicion_i is the
-     flagged fraction over rounds. A malicious client is flagged whenever its
-     cluster is caught (~always); an honest client only when randomly co-clustered
-     with a malicious one (prob. 1-(1-f)^{c-1} < 1). The scores separate.
-  5. After a warmup, clients with suspicion above tau are EXCLUDED from
-     aggregation (they may keep submitting; their clusters are ignored).
-
-Privacy cost is explicit and bounded: beyond cluster sums, the server learns one
-bit per cluster per round (flagged or not) --- never an individual update. Key
-material supports re-clustering at zero per-round KEM cost by establishing all
-pairwise secrets once at setup (O(N) encapsulations per client).
-"""
-
 from __future__ import annotations
 
 import os

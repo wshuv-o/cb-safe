@@ -1,31 +1,3 @@
-"""CB-SAFE: KEM-agnostic cluster-based secure aggregation with dropout recovery.
-
-Protocol (per cluster of size c, Bonawitz-style double masking):
-
-  Setup (once, amortized across all rounds):
-    - every client generates a KEM keypair and publishes pk (HQC or ML-KEM/Kyber —
-      the KEM is pluggable and this file never depends on which one)
-    - for each unordered pair (i, j), i < j within a cluster, client i encapsulates
-      to pk_j; the ciphertext travels i -> server -> j; both ends now hold the
-      long-lived pairwise shared secret ss_ij
-
-  Round r:
-    - client i draws a fresh self-mask seed b_i and Shamir-shares it t-of-c among
-      its cluster (including itself)
-    - client i submits  y_i = q(x_i) + PRG(b_i) + sum_{j>i} m_ij - sum_{j<i} m_ij
-      (mod 2**64), where m_ij = PRG(HKDF(ss_ij, r)) — fresh masks each round with
-      NO new encapsulation
-    - the server sums each cluster's submissions; pairwise masks cancel
-    - unmasking: for every SURVIVOR i the server reconstructs b_i from t shares and
-      removes PRG(b_i); for every DROPPED d the survivors reveal their per-round
-      pairwise seeds with d and the server removes the survivors' orphaned halves
-    - the server obtains only the cluster sum of quantized updates; anonymity set =
-      number of alive members in the cluster
-
-All message sizes are accounted from the real byte objects, and crypto wall-times
-are measured, so overhead numbers in the paper come from this code path.
-"""
-
 from __future__ import annotations
 
 import time
