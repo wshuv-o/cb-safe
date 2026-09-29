@@ -1,0 +1,6 @@
+# CIFAR-10: 50,000/10,000 images, 10 classes, CNN (d = 291,498)
+name: cifar10
+loader: torchvision
+alpha: 0.5          # Dirichlet label-skew concentration across clients
+batch_size: 64      # client mini-batch size
+results_dir: ""     # results/

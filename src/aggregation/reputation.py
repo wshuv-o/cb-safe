@@ -161,7 +161,8 @@ def defend_round(
             flagged = [j for j, s in enumerate(scores) if s > thr]
         else:
             best = min(scores)
-            flagged = [j for j, s in enumerate(scores) if s > best + PROBE_MARGIN]
+            margin = _tuned("CBSAFE_PROBE_MARGIN", PROBE_MARGIN)  # read per call: sweepable
+            flagged = [j for j, s in enumerate(scores) if s > best + margin]
     else:
         if ref is None:
             # C3 TRUST-FREE reference (no root data): seed with the coordinate-wise

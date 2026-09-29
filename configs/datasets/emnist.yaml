@@ -1,0 +1,6 @@
+# EMNIST-balanced: 112,800/18,800 images, 47 classes, same CNN
+name: emnist
+loader: torchvision   # falls back to Kaggle-hosted CSVs if the download fails
+alpha: 0.5
+batch_size: 64
+results_dir: kaggle/emnist

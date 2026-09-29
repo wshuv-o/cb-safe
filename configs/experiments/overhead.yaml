@@ -1,0 +1,7 @@
+# Measured per-client communication and computation cost per KEM (Table I).
+task: overhead
+n_clients: 30
+setup:
+  kems: [hqc-128, hqc-192, hqc-256, mlkem-512, mlkem-768, mlkem-1024]
+  cluster_sizes: [3, 5]
+output: {dir: "", name: overhead.csv}

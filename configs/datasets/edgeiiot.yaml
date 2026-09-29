@@ -1,0 +1,9 @@
+# Edge-IIoTset: tabular IoT/IIoT intrusion detection, 15 classes, multilayer perceptron.
+# Source: DNN-EdgeIIoT-dataset.csv (Kaggle), class-stratified to at most 120,000 rows.
+# Set EDGEIIOT_ROOT to the directory containing the CSV.
+name: edgeiiot
+loader: edgeiiot_csv
+search_root: null
+alpha: 0.5
+batch_size: 128
+results_dir: kaggle/edgeiiot

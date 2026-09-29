@@ -1,0 +1,25 @@
+# Aggregation methods. The key is the method name used in experiment configs and in
+# result file names.
+#   aggregator  rule passed to the simulation (src/federated/simulation.py)
+#   overlap     re-randomized partitions per test window (CB-SAFE+)
+#   temporal    spread the overlap across rounds (one partition per round)
+#   root        uses the server root dataset
+
+# Undefended and robust baselines
+mean:          {aggregator: mean}
+trimmed:       {aggregator: trimmed}
+median:        {aggregator: median}
+krum:          {aggregator: krum}           # Multi-Krum
+bulyan:        {aggregator: bulyan}
+geomedian:     {aggregator: geomedian}      # geometric median (RFA)
+fltrust:       {aggregator: fltrust, root: true}
+fedgt:         {aggregator: fedgt, root: true}   # FedGT-style group testing inside the shared harness (f = 0 rows)
+
+# CB-SAFE+ (reported configuration)
+hybrid_ov4:    {aggregator: hybrid, overlap: 4, temporal: true, root: true}
+
+# CB-SAFE+ ablation variants
+reputation:     {aggregator: reputation, root: true}
+reputation_ov4: {aggregator: reputation, overlap: 4, temporal: true, root: true}
+reputation_tf:  {aggregator: reputation_tf}                          # no root dataset
+hybrid_tf_ov4:  {aggregator: hybrid_tf, overlap: 4, temporal: true}  # trust-free CB-SAFE+

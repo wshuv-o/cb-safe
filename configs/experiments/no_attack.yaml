@@ -1,0 +1,13 @@
+# No-attack (f = 0) reference rows for the image datasets (Table III).
+# Edge-IIoTset's rows are in edgeiiot_grid.yaml.
+task: robustness
+attack: none
+f: 0.0
+rounds: 50
+n_clients: 30
+cluster_size: 3
+root_policy: per_method
+temporal: false   # the reported no-attack CB-SAFE+ row used simultaneous overlap
+dataset: [cifar10, fmnist, emnist]
+seed: [0, 1, 2]
+method: [hybrid_ov4, bulyan, krum, geomedian, median, trimmed, mean, fltrust, fedgt]

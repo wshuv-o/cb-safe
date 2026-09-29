@@ -21,3 +21,6 @@ data/
 results/hb_*.txt
 results/**/*.pt
 results/**/checkpoints/
+
+# Partially written result files (renamed into place when a job finishes)
+*.part

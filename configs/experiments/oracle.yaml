@@ -1,0 +1,9 @@
+# Oracle upper bound: all malicious clients excluded from round 1 (Fig. 6).
+task: oracle
+attack: signflip
+method: oracle
+cluster_size: 3
+rounds: 50
+dataset: [cifar10, fmnist, emnist, edgeiiot]
+f: [0.1, 0.2, 0.3]
+seed: [0, 1, 2]

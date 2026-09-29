@@ -14,3 +14,4 @@ scipy
 scikit-learn==1.6.1
 matplotlib==3.10.0
 tqdm
+pyyaml

@@ -1,0 +1,17 @@
+# Sign-flip amplification sweep on CIFAR-10 at f = 0.2 (Fig. 4, Table VII).
+# gamma = 5 is the main grid; this sweep covers the other amplifications.
+task: robustness
+dataset: cifar10
+attack: signflip
+f: 0.2
+rounds: 50
+n_clients: 30
+cluster_size: 3
+root_policy: per_method
+gamma: [2.0, 3.0, 8.0, 15.0]
+seed: [0, 1, 2]
+output: {dir: gamma_sweep}
+grid:
+  - method: hybrid_ov4
+    temporal: false   # the reported sweep used simultaneous overlap for CB-SAFE+
+  - method: [median, trimmed, krum, bulyan, geomedian]

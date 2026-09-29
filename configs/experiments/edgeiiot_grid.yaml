@@ -1,0 +1,18 @@
+# Edge-IIoTset grid (tabular), N=30 for 50 rounds, including the no-attack rows.
+# The root set is drawn from the partitioned pool, as in the Kaggle pipeline.
+task: robustness
+dataset: edgeiiot
+rounds: 50
+n_clients: 30
+cluster_size: 3
+root_policy: partition_pool
+seed: [0, 1, 2]
+grid:
+  - attack: [signflip, labelflip]
+    f: [0.1, 0.2, 0.3]
+    method: [hybrid_ov4, bulyan, krum, geomedian, median, trimmed, mean, fltrust,
+             reputation, reputation_ov4, reputation_tf, hybrid_tf_ov4]
+  - attack: none
+    f: 0.0
+    temporal: false   # the reported no-attack CB-SAFE+ row used simultaneous overlap
+    method: [hybrid_ov4, bulyan, krum, geomedian, median, trimmed, mean, fltrust, fedgt]

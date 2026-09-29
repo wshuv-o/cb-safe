@@ -1,0 +1,10 @@
+# FedGT baseline with its published BCJR decoder at N = 30 (FedGT rows of Tables IV-VI).
+# Requires BCJR_4_python and fedgt_H30.npy from the FedGT authors in src/aggregation/.
+task: fedgt
+mode: accumulate      # run the group test every round and accumulate exclusions
+rounds: 50
+dataset: [cifar10, fmnist, emnist, edgeiiot]
+attack: [signflip, labelflip]
+f: [0.1, 0.2, 0.3]
+seed: [0, 1, 2]
+output: {dir: fedgt_faithful, name: "faithful_fedgt_{dataset}_{attack}_f{f100:02d}_N30_s{seed}.csv"}

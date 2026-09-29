@@ -1,0 +1,11 @@
+# Secure versus plain aggregation on CIFAR-10, round by round, with dropouts in
+# rounds 10 and 20 (Section VI-C). Writes utility_acc.csv and secure_equivalence.csv.
+task: utility
+rounds: 40
+n_clients: 30
+seed: 0
+setup:
+  kems: [hqc-128, mlkem-768]
+  drop_rounds: {10: 3, 20: 3}     # round -> number of clients that drop out
+  equivalence_file: secure_equivalence.csv
+output: {dir: "", name: utility_acc.csv}

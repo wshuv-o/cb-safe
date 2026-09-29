@@ -1,0 +1,31 @@
+# Sensitivity of CB-SAFE+ to its detector thresholds (CIFAR-10 sign-flip, f = 0.2;
+# Table X). Each variant changes one threshold; the others keep the published values
+# (flag margin 0.25, minimum suspicion gap 0.15, exclusion floor 0.25).
+task: robustness
+dataset: cifar10
+attack: signflip
+f: 0.2
+method: hybrid_ov4
+temporal: false   # the reported sweep used simultaneous overlap for CB-SAFE+
+rounds: 50
+n_clients: 30
+cluster_size: 3
+root_policy: per_method
+seed: [0, 1, 2]
+output: {dir: delta_sweep, name: "sweep_{variant}_s{seed}.csv"}
+variants:
+  - {tag: pm010, detector: {probe_margin: 0.10}}
+  - {tag: pm015, detector: {probe_margin: 0.15}}
+  - {tag: pm025, detector: {probe_margin: 0.25}}
+  - {tag: pm040, detector: {probe_margin: 0.40}}
+  - {tag: pm060, detector: {probe_margin: 0.60}}
+  - {tag: mg005, detector: {min_gap: 0.05}}
+  - {tag: mg010, detector: {min_gap: 0.10}}
+  - {tag: mg015, detector: {min_gap: 0.15}}
+  - {tag: mg025, detector: {min_gap: 0.25}}
+  - {tag: mg035, detector: {min_gap: 0.35}}
+  - {tag: mf010, detector: {min_floor: 0.10}}
+  - {tag: mf020, detector: {min_floor: 0.20}}
+  - {tag: mf025, detector: {min_floor: 0.25}}
+  - {tag: mf035, detector: {min_floor: 0.35}}
+  - {tag: mf050, detector: {min_floor: 0.50}}

@@ -1,0 +1,13 @@
+# Client-population scaling, N = 500 (FashionMNIST, sign-flip f = 0.2, 50 rounds;
+# Table II, Fig. 3). Seeds 0, 2, 3 are the ones reported.
+task: robustness
+dataset: fmnist
+attack: signflip
+f: 0.2
+n_clients: 500
+rounds: 50
+cluster_size: 3
+root_policy: always_exclude
+seed: [0, 2, 3]
+method: [hybrid_ov4, fltrust, median, geomedian, krum, bulyan, trimmed, mean]
+output: {dir: scale50}

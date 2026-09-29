@@ -1,0 +1,17 @@
+# Main grid: CIFAR-10, FashionMNIST, EMNIST at N=30 for 50 rounds.
+# Feeds the sign-flip, label-flip, and ablation tables, the backdoor results,
+# the attacker-identification table, and the dynamics and suspicion figures.
+task: robustness
+rounds: 50
+n_clients: 30
+cluster_size: 3
+root_policy: per_method
+dataset: [cifar10, fmnist, emnist]
+f: [0.1, 0.2, 0.3]
+seed: [0, 1, 2]
+grid:
+  - attack: [signflip, labelflip]
+    method: [hybrid_ov4, bulyan, krum, geomedian, median, trimmed, mean, fltrust,
+             reputation, reputation_ov4, reputation_tf, hybrid_tf_ov4]
+  - attack: backdoor
+    method: [hybrid_ov4, krum, median, trimmed, mean]
