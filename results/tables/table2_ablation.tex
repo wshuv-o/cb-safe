@@ -1,0 +1,15 @@
+\begin{table*}[!t]\centering\footnotesize
+\caption{Ablation of CB-SAFE+ Components Under Sign-Flip}
+\label{tab:ablation-variants}
+\setlength{\tabcolsep}{1.5pt}
+\begin{tabular}{@{}lcccccccccccc@{}}\toprule
+& \multicolumn{3}{c}{CIFAR-10} & \multicolumn{3}{c}{FashionMNIST} & \multicolumn{3}{c}{EMNIST} & \multicolumn{3}{c}{Edge-IIoTset}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-10}\cmidrule(l){11-13}
+Method & $f{=}.1$ & $f{=}.2$ & $f{=}.3$ & $f{=}.1$ & $f{=}.2$ & $f{=}.3$ & $f{=}.1$ & $f{=}.2$ & $f{=}.3$ & $f{=}.1$ & $f{=}.2$ & $f{=}.3$\\\midrule
+Base: temporal reputation (ov1) & 61.1\,{\scriptsize$\pm$0.3} & 55.9\,{\scriptsize$\pm$1.8} & 53.6\,{\scriptsize$\pm$5.6} & \textbf{88.0\,{\scriptsize$\pm$0.4}} & \textbf{88.0\,{\scriptsize$\pm$0.3}} & 86.7\,{\scriptsize$\pm$1.0} & 86.7\,{\scriptsize$\pm$0.2} & 86.0\,{\scriptsize$\pm$0.2} & 86.3\,{\scriptsize$\pm$0.2} & 65.3\,{\scriptsize$\pm$0.4} & 65.1\,{\scriptsize$\pm$1.1} & \textbf{64.5\,{\scriptsize$\pm$0.7}}\\
+\;+ overlapping groups (ov4) & 60.4\,{\scriptsize$\pm$0.6} & \textbf{57.6\,{\scriptsize$\pm$1.6}} & \textbf{57.7\,{\scriptsize$\pm$2.3}} & 87.9\,{\scriptsize$\pm$0.4} & 88.0\,{\scriptsize$\pm$0.3} & \textbf{86.9\,{\scriptsize$\pm$0.8}} & 86.7\,{\scriptsize$\pm$0.1} & 86.3\,{\scriptsize$\pm$0.1} & \textbf{86.5\,{\scriptsize$\pm$0.2}} & \textbf{65.4\,{\scriptsize$\pm$0.5}} & \textbf{65.2\,{\scriptsize$\pm$0.2}} & 64.5\,{\scriptsize$\pm$0.8}\\
+\;+ hybrid COMP decode (full) & 60.5\,{\scriptsize$\pm$0.5} & 57.5\,{\scriptsize$\pm$1.6} & 57.4\,{\scriptsize$\pm$1.8} & 87.9\,{\scriptsize$\pm$0.3} & 88.0\,{\scriptsize$\pm$0.4} & 86.9\,{\scriptsize$\pm$0.8} & 86.7\,{\scriptsize$\pm$0.2} & \textbf{86.4\,{\scriptsize$\pm$0.1}} & 86.4\,{\scriptsize$\pm$0.2} & 65.4\,{\scriptsize$\pm$0.5} & 65.2\,{\scriptsize$\pm$0.2} & 64.5\,{\scriptsize$\pm$0.8}\\
+Trust-free (no root data) & \textbf{61.4\,{\scriptsize$\pm$0.4}} & 10.0\,{\scriptsize$\pm$0.0} & 10.0\,{\scriptsize$\pm$0.0} & 87.8\,{\scriptsize$\pm$0.3} & 10.0\,{\scriptsize$\pm$0.0} & 10.0\,{\scriptsize$\pm$0.0} & \textbf{86.8\,{\scriptsize$\pm$0.1}} & 2.1\,{\scriptsize$\pm$0.0} & 2.1\,{\scriptsize$\pm$0.0} & 64.4\,{\scriptsize$\pm$0.3} & 45.2\,{\scriptsize$\pm$26.6} & 7.4\,{\scriptsize$\pm$0.2}\\
+\bottomrule\end{tabular}
+\tablenote{Same protocol as Table~\ref{tab:signflip}. The trust-free variant uses no root dataset. Best per column in bold.}
+\end{table*}

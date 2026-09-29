@@ -1,4 +1,18 @@
-import _bootstrap
+"""Utility + cryptographic-equivalence experiment (the privacy-correctness claim).
+
+Trains plain FedAvg on CIFAR-10 (Dirichlet non-IID, 30 clients, 40 rounds). Every
+round, the SAME client deltas are also pushed through the full CB-SAFE cryptographic
+pipeline twice — once with code-based HQC-128, once with lattice ML-KEM-768 — and the
+per-cluster secure sums are compared against the plain sums. At rounds 10 and 20,
+three random clients drop out mid-round to exercise Shamir/seed-reveal recovery.
+
+Outputs:
+  results/utility_acc.csv          round, acc, t_round_s
+  results/secure_equivalence.csv   per round x KEM: max |secure - plain| error,
+                                   per-round comm bytes, mask/unmask seconds, dropouts
+"""
+
+import _bootstrap  # noqa: F401
 
 import csv
 import os
@@ -11,7 +25,7 @@ from src.federated.simulation import Config, run
 from torch.utils.data import DataLoader
 
 KEMS = ["hqc-128", "mlkem-768"]
-DROP_ROUNDS = {10: 3, 20: 3}
+DROP_ROUNDS = {10: 3, 20: 3}  # round -> number of dropped clients
 
 
 def main() -> None:
@@ -25,7 +39,7 @@ def main() -> None:
     equiv_rows: list[dict] = []
 
     def on_round(r: int, deltas: dict[int, np.ndarray], clusters: list[list[int]]) -> None:
-        if not aggs:
+        if not aggs:  # one-time setup (amortized), built on first round
             for kem in KEMS:
                 aggs[kem] = ClusterSecureAggregator(kem, clusters)
                 s = aggs[kem].stats_setup

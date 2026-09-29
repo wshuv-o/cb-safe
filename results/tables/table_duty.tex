@@ -1,0 +1,15 @@
+\begin{table}[!t]\centering\footnotesize
+\caption{Duty-Cycled Attacker}
+\label{tab:duty}
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}lcc@{}}\toprule
+Attacker duty $\eta$ & Test acc.\ (\%) & Attackers excl.\ (of 6)\\\midrule
+Clean (no attack) & $59.0$ & $-$\\
+$0.50$ & $59.8$\,{\scriptsize$\pm$0.5} & $1.7$\\
+$0.70$ & $59.0$\,{\scriptsize$\pm$0.5} & $5.3$\\
+$0.80$ & $59.1$\,{\scriptsize$\pm$1.0} & $6.0$\\
+$0.84$ & $57.7$\,{\scriptsize$\pm$1.6} & $6.0$\\
+$0.90$ & $57.1$\,{\scriptsize$\pm$2.4} & $5.7$\\
+$1.00$ (always-on) & $57.5$\,{\scriptsize$\pm$1.6} & $6.0$\\
+\bottomrule\end{tabular}\tablenote{CIFAR-10 sign-flip, $\gamma{=}5$, $f{=}0.2$; 3 seeds, 50 rounds. A client poisons a fraction $\eta$ of rounds ($\eta{=}1$: always on); exclusion by the adaptive-gap suspicion rule (Eq.~\ref{eq:excl}).}
+\end{table}

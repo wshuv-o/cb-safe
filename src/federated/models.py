@@ -1,3 +1,5 @@
+"""Small CNN for CIFAR-10 (~300k parameters) and flat-vector state helpers."""
+
 from __future__ import annotations
 
 import numpy as np
@@ -23,6 +25,7 @@ class SmallCNN(nn.Module):
 
 
 class TabularMLP(nn.Module):
+    """MLP for tabular intrusion-detection data (Edge-IIoTset)."""
 
     def __init__(self, n_classes: int, in_dim: int, hidden: int = 128):
         super().__init__()
@@ -36,6 +39,8 @@ class TabularMLP(nn.Module):
         return self.net(x)
 
 
+# dataset name -> {kind, n_classes, and constructor kwargs}. `in_dim` for tabular
+# datasets is discovered at load time and injected via set_tabular_dim().
 MODEL_SHAPES = {
     "cifar10": {"kind": "cnn", "n_classes": 10, "in_channels": 3, "img_size": 32},
     "fmnist": {"kind": "cnn", "n_classes": 10, "in_channels": 1, "img_size": 28},
@@ -45,6 +50,8 @@ MODEL_SHAPES = {
 
 
 def set_tabular_dim(dataset: str, n_classes: int, in_dim: int) -> None:
+    """Edge-IIoTset's exact feature count / class count depend on preprocessing;
+    the loader calls this once so make_model builds a correctly-sized MLP."""
     MODEL_SHAPES[dataset]["n_classes"] = n_classes
     MODEL_SHAPES[dataset]["in_dim"] = in_dim
 

@@ -1,12 +1,16 @@
-numpy
-pandas
-matplotlib
-scikit-learn
-torch
-torchvision
-cryptography
+# Python 3.10+ (developed with 3.12)
 
-# liboqs-python (import name: oqs) is required ONLY for the code-based/lattice KEM
-# overhead and utility benchmarks (experiments/run_overhead.py, run_utility.py).
-# It is imported lazily, so every other experiment runs without it.
-# Install per https://github.com/open-quantum-safe/liboqs-python
+# Post-quantum KEMs (HQC, ML-KEM). liboqs-python needs the native liboqs library
+# built with HQC enabled; see "Installation" in README.md.
+liboqs-python==0.15.0
+cryptography==46.0.7
+
+# Training and analysis
+torch==2.5.0
+torchvision==0.20.0
+numpy==2.2.4
+pandas==2.2.3
+scipy
+scikit-learn==1.6.1
+matplotlib==3.10.0
+tqdm

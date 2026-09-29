@@ -1,10 +1,18 @@
-import _bootstrap
+"""Supplementary sweep tracing the privacy-robustness trade-off empirically:
+fixed attack (signflip) and rule (median), varying cluster size c and malicious
+fraction f. c=1 is the no-privacy classical robust-aggregation baseline; larger c
+buys anonymity and pays in contaminated cluster sums per (1-f)^c.
+
+Run AFTER run_sweep.py (GPU). Skips existing CSVs, like run_sweep."""
+
+import _bootstrap  # noqa: F401
 
 import os
 import subprocess
 import sys
 
 JOBS = [
+    # (cluster_size, f) — c=3 rows come from the main sweep
     (1, 0.30), (1, 0.20), (1, 0.10), (1, 0.05),
     (5, 0.30), (5, 0.20), (5, 0.10), (5, 0.05),
     (3, 0.05),

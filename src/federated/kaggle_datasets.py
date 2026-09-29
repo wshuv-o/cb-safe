@@ -1,3 +1,16 @@
+"""Loaders for the two Kaggle-hosted generalization datasets.
+
+  emnist    - EMNIST-balanced (47 classes, handwritten), auto-downloaded by
+              torchvision; a larger, harder label space than CIFAR/FashionMNIST.
+  edgeiiot  - Edge-IIoTset IoT/IIoT intrusion detection (tabular). A robust CSV
+              loader that adapts to the standard "DNN-EdgeIIoT-dataset.csv":
+              drops known leakage/identifier columns, label-encodes the multiclass
+              attack type, coerces + standardizes features, and returns tensors.
+
+Both return (train_ds, test_ds, train_labels) so the existing Dirichlet
+partitioner and client-loader code apply unchanged.
+"""
+
 from __future__ import annotations
 
 import os
@@ -11,6 +24,7 @@ from torchvision import datasets, transforms
 
 from . import models
 
+# ---------------------------------------------------------------- EMNIST -----
 
 EMNIST_TF = transforms.Compose([
     transforms.ToTensor(),
@@ -19,13 +33,16 @@ EMNIST_TF = transforms.Compose([
 
 
 def load_emnist(root: str):
+    """EMNIST-balanced (47 classes). Tries torchvision download; if that fails
+    (its NIST URL is historically flaky), falls back to a Kaggle-hosted CSV in the
+    common `emnist-balanced-{train,test}.csv` format (label, then 784 pixels)."""
     try:
         train = datasets.EMNIST(root, split="balanced", train=True, download=True,
                                 transform=EMNIST_TF)
         test = datasets.EMNIST(root, split="balanced", train=False, download=True,
                                transform=EMNIST_TF)
         return train, test, np.array(train.targets)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001
         tr = _find_emnist_csv("train")
         te = _find_emnist_csv("test")
         if not (tr and te):
@@ -62,26 +79,34 @@ def _load_emnist_csv(train_csv: str, test_csv: str):
     return train, test, ytr
 
 
+# ------------------------------------------------------------- Edge-IIoTset ---
+
+# columns that leak the label or identify the flow; dropped if present
 _EDGEIIOT_DROP = [
     "frame.time", "ip.src_host", "ip.dst_host", "arp.src.proto_ipv4",
     "arp.dst.proto_ipv4", "http.file_data", "http.request.full_uri",
     "icmp.transmit_timestamp", "http.request.uri.query", "tcp.options",
     "tcp.payload", "tcp.srcport", "tcp.dstport", "udp.port", "mqtt.msg",
-    "Attack_label",
+    "Attack_label",  # binary target; we use the multiclass Attack_type
 ]
 _LABEL_COL = "Attack_type"
 
 
 def load_edgeiiot(csv_path: str, seed: int = 0, test_frac: float = 0.2,
                   max_rows: int = 120_000):
+    """Load and preprocess Edge-IIoTset from the standard DNN CSV.
+    Returns (train_ds, test_ds, train_labels) and registers the MLP input dim."""
     import pandas as pd
 
     df = pd.read_csv(csv_path, low_memory=False)
-    if len(df) > max_rows:
-        df = df.groupby(_LABEL_COL, group_keys=False).apply(
-            lambda g: g.sample(min(len(g), max(1, max_rows // df[_LABEL_COL].nunique())),
-                               random_state=seed)
-        )
+    if len(df) > max_rows:  # subsample for tractable FL rounds, class-stratified
+        # Built by concatenating per-group samples rather than groupby().apply():
+        # pandas 3 excludes the grouping column from an apply result, which silently
+        # dropped Attack_type and made the next line raise KeyError. Older pandas only
+        # warned. This form keeps every column on any version.
+        per = max(1, max_rows // df[_LABEL_COL].nunique())
+        df = pd.concat([g.sample(min(len(g), per), random_state=seed)
+                        for _, g in df.groupby(_LABEL_COL, sort=False)])
     df = df.dropna(axis=0, how="any").reset_index(drop=True)
 
     y_raw = df[_LABEL_COL].astype(str)
@@ -91,8 +116,12 @@ def load_edgeiiot(csv_path: str, seed: int = 0, test_frac: float = 0.2,
 
     drop = [c for c in _EDGEIIOT_DROP + [_LABEL_COL] if c in df.columns]
     X = df.drop(columns=drop)
+    # Label-encode any remaining non-numeric column, then coerce the rest.
+    # Testing `dtype == object` missed them on pandas 3, where text columns carry
+    # StringDtype: they reached the float cast unencoded and raised on values like
+    # 'GET'. A numeric-dtype test is correct on every version.
     for col in X.columns:
-        if X[col].dtype == object:
+        if not pd.api.types.is_numeric_dtype(X[col]):
             X[col] = X[col].astype("category").cat.codes
     X = X.apply(lambda s: s.astype(np.float32)).to_numpy()
     X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
@@ -113,13 +142,30 @@ def load_edgeiiot(csv_path: str, seed: int = 0, test_frac: float = 0.2,
     return train, test, ytr
 
 
-def find_edgeiiot_csv(search_root: str = "/kaggle/input") -> str | None:
+def find_edgeiiot_csv(search_root: str | None = None) -> str | None:
+    """Locate the Edge-IIoTset DNN CSV.
+
+    Searches CBSAFE_EDGEIIOT_DIR if set, then the repository's data/ directory, then
+    the Kaggle input mount. The local paths are what let the Edge-IIoT experiments run
+    off Kaggle: the mount does not exist on a workstation, so the presence probe
+    returned None and the dataset was skipped without an error.
+    """
     prefer = "DNN-EdgeIIoT-dataset.csv"
+    if search_root is not None:
+        roots = [search_root]
+    else:
+        here = os.path.dirname(os.path.abspath(__file__))
+        repo = os.path.dirname(os.path.dirname(here))
+        roots = [os.environ.get("CBSAFE_EDGEIIOT_DIR"),
+                 os.path.join(repo, "data"),
+                 "/kaggle/input"]
     fallback = None
-    for dirpath, _dirs, files in os.walk(search_root):
-        for fn in files:
-            if fn == prefer:
-                return os.path.join(dirpath, fn)
-            if fn.lower().endswith(".csv") and "edge" in fn.lower() and fallback is None:
-                fallback = os.path.join(dirpath, fn)
+    for root in [r for r in roots if r and os.path.isdir(r)]:
+        for dirpath, _dirs, files in os.walk(root):
+            for fn in files:
+                if fn == prefer:
+                    return os.path.join(dirpath, fn)
+                if fn.lower().endswith(".csv") and "edge" in fn.lower() \
+                        and fallback is None:
+                    fallback = os.path.join(dirpath, fn)
     return fallback

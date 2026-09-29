@@ -1,3 +1,19 @@
+"""In-process FL simulation: FedAvg with pluggable aggregation and attacks.
+
+One round = every client trains locally from the global model for one epoch; each
+client's update is its parameter delta. Aggregation paths:
+
+  - "fedavg":  mean of all client deltas (the plain baseline)
+  - "cluster": deltas are grouped into fixed clusters, per-cluster MEANS are formed
+               (this is exactly what CB-SAFE's secure aggregation reveals to the
+               server — the equivalence is verified bit-exactly in run_utility.py),
+               then a robust rule (mean/median/trimmed/krum) combines cluster means.
+
+The robustness sweep uses the "cluster" path with plain arithmetic for speed; the
+cryptographic path produces identical sums up to fixed-point quantization (2**-16),
+which run_utility.py demonstrates, so accuracy results transfer exactly.
+"""
+
 from __future__ import annotations
 
 import os
@@ -15,7 +31,7 @@ from torch.utils.data import DataLoader
 
 from ..adversary import attacks
 from ..aggregation import robust
-from ..aggregation.reputation import ReputationState, defend_round
+from ..aggregation.reputation import ReputationState, _tuned, defend_round
 from ..aggregation.secure_agg import make_clusters
 from .models import flat_params, load_flat_params, make_model
 
@@ -28,20 +44,22 @@ class Config:
     lr: float = 0.01
     momentum: float = 0.9
     batch_size: int = 64
-    alpha: float = 0.5
+    alpha: float = 0.5          # Dirichlet concentration
     seed: int = 0
-    aggregation: str = "fedavg"
-    aggregator: str = "mean"
+    aggregation: str = "fedavg"  # "fedavg" | "cluster"
+    aggregator: str = "mean"     # rule across cluster means (cluster path)
     cluster_size: int = 3
-    trim: int = 2
-    attack: str = "none"
+    trim: int = 2                # trimmed-mean per-side trim (in clusters)
+    attack: str = "none"         # none | labelflip | signflip | backdoor
     f_malicious: float = 0.0
-    root_size: int = 200
-    dataset: str = "cifar10"
-    n_classes: int = 10
-    signflip_gamma: float = 5.0
-    overlap: int = 1
-    participation: float = 1.0
+    root_size: int = 200         # server root-dataset size (reputation defense anchor)
+    dataset: str = "cifar10"     # cifar10 | fmnist | emnist | edgeiiot
+    n_classes: int = 10          # label space (set per dataset; used by label-flip)
+    signflip_gamma: float = 5.0  # sign-flip scale (C1 sweeps this to find gamma*)
+    attack_duty: float = 1.0     # fraction of rounds a malicious client actually poisons; <1 duty-cycles to duck the exclusion threshold while keeping most attack power
+    overlap: int = 1             # CB-SAFE+ re-randomized partitions/round (test budget)
+    temporal_overlap: bool = False  # spread the `overlap` groups across rounds (1 partition/round, rank-c privacy) instead of simultaneously (rank-solvable)
+    participation: float = 1.0   # fraction of clients sampled per round (1.0 = full participation)
 
 
 def set_seeds(seed: int) -> None:
@@ -56,14 +74,32 @@ def pick_malicious(cfg: Config) -> set[int]:
     return set(rng.choice(cfg.n_clients, size=n_mal, replace=False).tolist())
 
 
+def poisons_this_round(cfg: Config, client: int, r: int) -> bool:
+    """Whether a malicious client actually poisons in round r. With attack_duty<1 it
+    stays honest in a (1-duty) fraction of rounds, so its flagged fraction hovers near
+    duty and it can duck below the exclusion threshold while keeping most attack power."""
+    if cfg.attack_duty >= 1.0:
+        return True
+    return float(np.random.default_rng([cfg.seed, client, r, 5000]).random()) < cfg.attack_duty
+
+
 def local_train(global_flat: np.ndarray, loader: DataLoader, cfg: Config,
-                device: torch.device, malicious: bool) -> np.ndarray:
+                device: torch.device, malicious: bool,
+                epochs: int | None = None) -> np.ndarray:
+    """Train locally from the global model; return the flat float32 delta.
+
+    `epochs` overrides cfg.local_epochs. Used for the FLTrust root update: the
+    root set is far smaller than a client shard, so matching *epochs* would give
+    the server ~8x fewer SGD steps than a client and shrink the aggregate (which
+    FLTrust rescales to the root's norm) by the same factor. Cao et al. match
+    local *iterations*, so the caller passes the epoch count that equalises them.
+    """
     model = make_model(cfg.dataset).to(device)
     load_flat_params(model, global_flat)
     model.train()
     opt = torch.optim.SGD(model.parameters(), lr=cfg.lr, momentum=cfg.momentum)
     loss_fn = nn.CrossEntropyLoss()
-    for _ in range(cfg.local_epochs):
+    for _ in range(cfg.local_epochs if epochs is None else epochs):
         for x, y in loader:
             if malicious and cfg.attack == "labelflip":
                 y = attacks.flip_labels(y, cfg.n_classes)
@@ -82,6 +118,8 @@ def local_train(global_flat: np.ndarray, loader: DataLoader, cfg: Config,
 @torch.no_grad()
 def mean_loss(global_flat: np.ndarray, loader: DataLoader, device: torch.device,
               dataset: str = "cifar10") -> float:
+    """Mean cross-entropy of the model given by `global_flat` over `loader`
+    (used for the server's Zeno-style loss probe on its root dataset)."""
     model = make_model(dataset).to(device)
     load_flat_params(model, global_flat)
     model.eval()
@@ -111,6 +149,7 @@ def evaluate(global_flat: np.ndarray, loader: DataLoader, device: torch.device,
 def attack_success_rate(global_flat: np.ndarray, loader: DataLoader,
                         device: torch.device, target: int = attacks.BACKDOOR_TARGET,
                         dataset: str = "cifar10") -> float:
+    """Fraction of non-target test samples classified as `target` once triggered."""
     model = make_model(dataset).to(device)
     load_flat_params(model, global_flat)
     model.eval()
@@ -130,6 +169,7 @@ def aggregate(deltas: dict[int, np.ndarray], cfg: Config,
               clusters: list[list[int]]) -> np.ndarray:
     if cfg.aggregation == "fedavg":
         return np.mean(np.stack(list(deltas.values())), axis=0)
+    # cluster path: per-cluster means (what secure aggregation reveals), robust rule across
     means = np.stack([np.mean(np.stack([deltas[i] for i in cl]), axis=0) for cl in clusters])
     if cfg.aggregator == "trimmed":
         return robust.trimmed_mean(means, trim=cfg.trim)
@@ -138,6 +178,11 @@ def aggregate(deltas: dict[int, np.ndarray], cfg: Config,
 
 def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
         on_round=None, server_dl: DataLoader | None = None) -> list[dict]:
+    """Run the FL simulation; returns one metrics dict per round.
+    on_round(round_idx, deltas, alive) is an optional hook (used by run_utility.py
+    to feed the same deltas through the cryptographic pipeline).
+    server_dl is the server's root dataset (trust anchor for the reputation
+    defense); it never leaves the server."""
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     set_seeds(cfg.seed)
     model = make_model(cfg.dataset).to(device)
@@ -146,11 +191,13 @@ def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
     malicious = pick_malicious(cfg)
     rep_aggs = ("reputation", "reputation_tf", "hybrid", "hybrid_tf")
     rep = ReputationState(n_clients=cfg.n_clients) if cfg.aggregator in rep_aggs else None
-    trustfree = cfg.aggregator in ("reputation_tf", "hybrid_tf")
-    comp = cfg.aggregator in ("hybrid", "hybrid_tf")
+    trustfree = cfg.aggregator in ("reputation_tf", "hybrid_tf")  # no server root set
+    comp = cfg.aggregator in ("hybrid", "hybrid_tf")              # per-round COMP decode
     fedgt = None
     if cfg.aggregator == "fedgt":
         from ..aggregation.fedgt import FedGTDetector
+        # groups sized to the anonymity set (== cluster_size) so FedGT and CB-SAFE+
+        # respect the SAME secure-aggregation constraint; deg=4 overlapping tests
         fedgt = FedGTDetector(cfg.n_clients, group_size=cfg.cluster_size,
                               deg=4, seed=cfg.seed + 13)
 
@@ -160,16 +207,27 @@ def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
         excluded = rep.excluded if rep is not None else (fedgt.excluded if fedgt else set())
         active = [i for i in range(cfg.n_clients) if i not in excluded]
         if cfg.participation < 1.0 and len(active) > cfg.cluster_size:
+            # partial participation (realistic cross-device FL): sample a fraction of
+            # clients each round. Keep the count a multiple of cluster_size so clean
+            # clusters of size c still form. Downstream paths key off `active`/`deltas`.
             k = int(round(cfg.participation * len(active)))
             k -= k % cfg.cluster_size
             k = max(cfg.cluster_size, min(k, len(active)))
             rng_r = np.random.default_rng(cfg.seed + 1000 + r)
             active = sorted(int(i) for i in rng_r.choice(active, size=k, replace=False))
+        def _poison(i: int) -> bool:
+            if i not in malicious:
+                return False
+            if cfg.attack == "signflip" and cfg.attack_duty < 1.0:
+                return poisons_this_round(cfg, i, r)
+            return True
         deltas = {
-            i: local_train(global_flat, client_dls[i], cfg, device, i in malicious)
+            i: local_train(global_flat, client_dls[i], cfg, device, _poison(i))
             for i in active
         }
         if fedgt is not None:
+            # FedGT path: fixed overlapping groups, secure sums scored by root-loss,
+            # one-shot group-testing decode, then aggregate clean groups' means
             base = mean_loss(global_flat, server_dl, device, cfg.dataset) if server_dl is not None else 0.0
             g_means, g_scores = [], []
             for members in fedgt.groups():
@@ -181,6 +239,10 @@ def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
                 if server_dl is None:
                     score = 0.0
                 elif os.environ.get("FEDGT_STAT") == "acc":
+                    # FedGT-original-style test statistic: the group model's
+                    # validation accuracy on the root set (low accuracy => likely
+                    # poisoned). Negated so higher score = worse = positive, to
+                    # match the COMP threshold direction.
                     score = -evaluate(global_flat + gm.astype(np.float32), server_dl,
                                       device, cfg.dataset)
                 else:
@@ -188,29 +250,55 @@ def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
                                       device, cfg.dataset) - base
                 g_scores.append(score)
             newly = fedgt.decode(np.array(g_scores))
-            fedgt.excluded |= (newly - set())
+            fedgt.excluded |= (newly - set())  # accumulate identified malicious
             keep = [gm for gm, s in zip(g_means, g_scores)
                     if gm is not None and s <= np.quantile([x for x in g_scores if np.isfinite(x)], 0.5)]
             delta_agg = np.mean(np.stack(keep), axis=0) if keep else np.mean(
                 np.stack([gm for gm in g_means if gm is not None]), axis=0)
         elif rep is not None:
-            clusters_r = []
-            for p in range(cfg.overlap):
-                clusters_r += make_clusters(active, cfg.cluster_size,
-                                            cfg.seed + 13 + r + p * 1009)
+            # CB-SAFE+ path: fresh random partition(s) each round, flag clusters,
+            # accumulate suspicion, exclude. cfg.overlap>1 draws that many
+            # independent partitions so each client gets `overlap` tests/round
+            # (matching FedGT's overlapping-group test budget) -- clusters stay at
+            # size cfg.cluster_size, so the anonymity set is unchanged.
+            if cfg.temporal_overlap:
+                rep.comp_window = cfg.overlap           # o overlapping groups spread over rounds
+                # temporal suspicion peaks ~0.6 not ~0.9, so the exclusion floor is
+                # lowered here. Routed through _tuned so the sensitivity sweep reaches
+                # the CB-SAFE+ path too; without this the sweep would move only the
+                # non-temporal rules and read as spuriously insensitive.
+                rep.min_floor = _tuned("CBSAFE_MIN_FLOOR", 0.25)
+                rep.min_gap = _tuned("CBSAFE_MIN_GAP", 0.15)
+                clusters_r = make_clusters(active, cfg.cluster_size, cfg.seed + 13 + r)
+            else:
+                clusters_r = []
+                for p in range(cfg.overlap):
+                    clusters_r += make_clusters(active, cfg.cluster_size,
+                                                cfg.seed + 13 + r + p * 1009)
             means = np.stack(
                 [np.mean(np.stack([deltas[i] for i in cl]), axis=0) for cl in clusters_r])
             probe = None
             if server_dl is not None and not trustfree:
                 base = mean_loss(global_flat, server_dl, device, cfg.dataset)
-                probe = lambda m: mean_loss(
+                probe = lambda m: mean_loss(  # noqa: E731
                     global_flat + m.astype(np.float32), server_dl, device,
                     cfg.dataset) - base
-            delta_agg = defend_round(rep, means, clusters_r, r, probe=probe, comp=comp)
+            # trustfree=True -> probe=None, ref=None -> defend_round uses the C3
+            # median-seeded consensus reference (no trusted data);
+            # comp=True -> per-round COMP decode over the overlapping groups (hybrid)
+            delta_agg = defend_round(rep, means, clusters_r, r, probe=probe, comp=comp,
+                                     temporal=cfg.temporal_overlap)
         elif cfg.aggregator == "fltrust":
+            # FLTrust: trust-weighted aggregation of cluster means against the
+            # server's own root-data update (needs server_dl; fixed clusters)
             means = np.stack([np.mean(np.stack([deltas[i] for i in cl]), axis=0)
                               for cl in clusters])
-            root_update = local_train(global_flat, server_dl, cfg, device, malicious=False)
+            # match client SGD steps, not epochs (see local_train docstring)
+            n_root = max(1, len(server_dl))
+            n_client = max(1, int(np.median([len(dl) for dl in client_dls])))
+            root_epochs = max(1, round(cfg.local_epochs * n_client / n_root))
+            root_update = local_train(global_flat, server_dl, cfg, device,
+                                      malicious=False, epochs=root_epochs)
             delta_agg = robust.fltrust(means, root_update)
         else:
             if on_round is not None:
@@ -224,6 +312,18 @@ def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
             "t_round_s": time.perf_counter() - t0,
             "n_malicious": len(malicious),
         }
+        if os.environ.get("CBSAFE_LOG_NORM"):
+            # Diagnostic only, off by default so existing CSV schemas are unchanged.
+            # ||aggregate|| against the mean ||honest update|| distinguishes "the
+            # laundered +/-h population cancels to ~0" from "the model diverges":
+            # cancellation drives the ratio toward 0, divergence does not.
+            honest = [deltas[i] for i in deltas if i not in malicious]
+            hn = float(np.mean([np.linalg.norm(h) for h in honest])) if honest else float("nan")
+            an = float(np.linalg.norm(delta_agg))
+            row["agg_norm"] = an
+            row["honest_norm"] = hn
+            row["norm_ratio"] = an / hn if hn else float("nan")
+            row["global_norm"] = float(np.linalg.norm(global_flat))
         if fedgt is not None:
             row["excluded_malicious"] = len(fedgt.excluded & malicious)
             row["excluded_honest"] = len(fedgt.excluded - malicious)
@@ -245,7 +345,7 @@ def run(cfg: Config, client_dls: list[DataLoader], test_dl: DataLoader,
                                              dataset=cfg.dataset)
         history.append(row)
         _hb = os.environ.get("CBSAFE_HEARTBEAT")
-        if _hb:
+        if _hb:  # live, flushed per-round signal for detached runs (overwrite = latest)
             with open(_hb, "w") as _f:
                 _f.write(f"round {r + 1}/{cfg.rounds} acc={acc:.4f} "
                          f"exc_mal={row.get('excluded_malicious', '-')} "

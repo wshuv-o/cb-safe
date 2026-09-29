@@ -1,4 +1,17 @@
-import _bootstrap
+"""Run FedGT (its BCJR decoder, recall signal, and KMeans test) across the paper's
+configurations at N=30, FedGT's published configuration. Reuses the shared
+training/attack/data harness; only the detector is FedGT's own compiled code.
+
+Two protocols:
+  --mode accumulate : run the group test every round, accumulate exclusions (matches
+                      CB-SAFE+ / COMP-FedGT protocol used elsewhere).
+  --mode oneshot    : train all clients until --oneshot_at, run FedGT's one-shot
+                      identification ONCE there, exclude, continue (FedGT's own
+                      intended deployment; its best-case false-positive count).
+Logs per-round accuracy / attackers-caught / honest-FP. Resumable (skips existing).
+"""
+
+import _bootstrap  # noqa: F401
 
 import argparse
 import csv
@@ -28,8 +41,14 @@ def group_recall(flat, loader, dataset, n_classes):
 
 
 def prep(seed, ds, n=30, root=200):
-    train, test = data.load_dataset(ds)
-    parts = data.dirichlet_partition(np.array(train.targets), n, 0.5, seed)
+    if ds == "edgeiiot":
+        from src.federated import kaggle_datasets as kd
+        csvp = kd.find_edgeiiot_csv(os.environ.get("EDGEIIOT_ROOT", "/kaggle/input"))
+        train, test, lab = kd.load_edgeiiot(csvp, seed=seed)
+        parts = data.dirichlet_partition(lab, n, 0.5, seed)
+    else:
+        train, test = data.load_dataset(ds)
+        parts = data.dirichlet_partition(np.array(train.targets), n, 0.5, seed)
     rng = np.random.default_rng(seed + 99)
     ridx = set(rng.choice(len(train), size=root, replace=False).tolist())
     parts = [np.array([i for i in p if i not in ridx]) for p in parts]
@@ -67,9 +86,9 @@ def run(ds, f, seed, rounds, gamma, mode, oneshot_at, attack="signflip"):
             tests = gt.perform_clustering_and_testing(gacc, gpca, ss_thres=0.0)
             flagged = gt.perform_gt(tests)
             if mode == "oneshot":
-                excluded = set(int(i) for i in flagged)
+                excluded = set(int(i) for i in flagged)   # single identification
             else:
-                excluded |= set(int(i) for i in flagged)
+                excluded |= set(int(i) for i in flagged)  # accumulate
         kept = [i for i in range(n) if i not in excluded]
         global_flat = global_flat + np.mean([deltas[i] for i in (kept if kept else range(n))], axis=0)
         acc = evaluate(global_flat, tdl, DEV, ds)
@@ -90,7 +109,7 @@ def main():
     p.add_argument("--seeds", default="0,1,2")
     p.add_argument("--rounds", type=int, default=30)
     p.add_argument("--gamma", type=float, default=5.0)
-    p.add_argument("--mode", default="accumulate")
+    p.add_argument("--mode", default="accumulate")   # accumulate | oneshot
     p.add_argument("--oneshot_at", type=int, default=15)
     p.add_argument("--attack", default="signflip")
     args = p.parse_args()

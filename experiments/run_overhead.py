@@ -1,4 +1,14 @@
-import _bootstrap
+"""Communication/computation overhead of CB-SAFE per KEM, measured (not modeled).
+
+For each KEM and cluster size: one-time setup cost (keygen + pairwise encapsulation,
+bytes and seconds) and steady-state per-round cost (masked submission, Shamir shares,
+unmasking traffic) with a real model-sized vector, plus a 10%-dropout round.
+
+Key claim this quantifies: per-round bytes are KEM-INDEPENDENT (the KEM appears only
+in setup), so HQC's larger ciphertexts are a one-time, amortizable cost.
+"""
+
+import _bootstrap  # noqa: F401
 
 import csv
 import os
@@ -24,7 +34,7 @@ def main() -> None:
     rows = []
     for c in CLUSTER_SIZES:
         clusters = make_clusters(list(range(N_CLIENTS)), c, seed=13)
-        dropouts = {cl[0] for cl in clusters[: max(1, N_CLIENTS // (10 * c))]}
+        dropouts = {cl[0] for cl in clusters[: max(1, N_CLIENTS // (10 * c))]}  # ~10% of clusters lose 1
         for kem in KEMS:
             t0 = time.perf_counter()
             agg = ClusterSecureAggregator(kem, clusters)

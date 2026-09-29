@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Page-1" id="Eotb1cSewlY5zFfTZXFU">
+    <mxGraphModel dx="-2587" dy="-434" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="2" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;rounded=1;arcSize=3;dashed=1;dashPattern=8 5;fillColor=none;" value="" vertex="1">
+          <mxGeometry height="378" width="372" x="8366.10813911438" y="1768.5091349283857" as="geometry" />
+        </mxCell>
+        <mxCell id="3" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;rounded=1;arcSize=40;fillColor=#FFFFFF;strokeWidth=1.4;fontSize=13;fontStyle=1;" value="(a)  One-time setup" vertex="1">
+          <mxGeometry height="30" width="185.6" x="8377.182928455899" y="1746.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="4" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;rounded=1;arcSize=10;dashed=1;dashPattern=5 3;fillColor=none;fontSize=13;" value="&lt;i&gt;K&lt;/i&gt; = (KeyGen, Encaps, Decaps)" vertex="1">
+          <mxGeometry height="38" width="328" x="8384.1129284559" y="1779.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="5" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;fillColor=#DCE9F7;rounded=1;arcSize=12;strokeWidth=2;fontSize=11;" value="HQC-128&lt;br&gt;code-based" vertex="1">
+          <mxGeometry height="46" width="150" x="8383.7829284559" y="1826.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="6" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;fillColor=#DCE9F7;rounded=1;arcSize=12;fontSize=11;" value="ML-KEM-512&lt;br&gt;lattice" vertex="1">
+          <mxGeometry height="46" width="150" x="8561.7829284559" y="1826.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="7" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;text;html=1;align=left;verticalAlign=middle;fontSize=17;fillColor=none;strokeColor=none;align=center;" value="⇄" vertex="1">
+          <mxGeometry height="26" width="28" x="8533.7829284559" y="1836.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="8" parent="1" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer_with_Server.svg;" value="" vertex="1">
+          <mxGeometry height="40" width="40" x="8391.7829284559" y="1896.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="9" parent="1" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/computer_and_terminals/Personal_Computer_with_Server.svg;" value="" vertex="1">
+          <mxGeometry height="40" width="40" x="8663.7829284559" y="1896.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="10" edge="1" parent="1" style="endArrow=blockThin;endFill=1;html=1;strokeColor=#000000;fontColor=#000000;strokeWidth=1.4;fontSize=10;fontFamily=Georgia;" value="(&lt;i&gt;ct&lt;/i&gt;, &lt;i&gt;ss&lt;/i&gt;&lt;sub&gt;ij&lt;/sub&gt;)">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="8435.7829284559" y="1916.5128347051714" as="sourcePoint" />
+            <mxPoint x="8659.7829284559" y="1916.5128347051714" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="11" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;text;html=1;align=left;verticalAlign=middle;fontSize=12;fillColor=none;strokeColor=none;align=center;" value="&lt;i&gt;ss&lt;/i&gt;&lt;sub&gt;ij&lt;/sub&gt; = Decaps(&lt;i&gt;sk&lt;/i&gt;&lt;sub&gt;j&lt;/sub&gt;, &lt;i&gt;ct&lt;/i&gt;)" vertex="1">
+          <mxGeometry height="38" width="328" x="8383.7829284559" y="1950.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="12" edge="1" parent="1" style="endArrow=blockThin;endFill=1;html=1;strokeColor=#000000;fontColor=#000000;strokeWidth=1.4;fontSize=10;fontFamily=Georgia;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="8552.1129284559" y="1972.5128347051714" as="sourcePoint" />
+            <mxPoint x="8552.1129284559" y="1994.5128347051714" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="13" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;fillColor=#DCE9F7;rounded=1;arcSize=8;fontSize=14;" value="&lt;i&gt;H&lt;/i&gt;(&lt;i&gt;ss&lt;/i&gt;&lt;sub&gt;ij&lt;/sub&gt;, &lt;i&gt;r&lt;/i&gt;)" vertex="1">
+          <mxGeometry height="40" width="328" x="8388.1129284559" y="1994.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="14" edge="1" parent="1" style="endArrow=blockThin;endFill=1;html=1;strokeColor=#000000;fontColor=#000000;strokeWidth=1.4;fontSize=10;fontFamily=Georgia;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="8552.1129284559" y="2034.5128347051714" as="sourcePoint" />
+            <mxPoint x="8552.1129284559" y="2052.5128347051714" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="15" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;fillColor=#DCE9F7;rounded=1;arcSize=8;fontSize=14;" value="&lt;i&gt;m&lt;/i&gt;&lt;sub&gt;ij&lt;/sub&gt; = &lt;i&gt;G&lt;/i&gt;(&lt;i&gt;H&lt;/i&gt;(&lt;i&gt;ss&lt;/i&gt;&lt;sub&gt;ij&lt;/sub&gt;, &lt;i&gt;r&lt;/i&gt;))" vertex="1">
+          <mxGeometry height="40" width="328" x="8388.1129284559" y="2052.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="16" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;text;html=1;align=left;verticalAlign=middle;fontSize=9;fillColor=none;strokeColor=none;align=center;" value="&lt;i&gt;H&lt;/i&gt; : HKDF-SHA256 &amp;nbsp; &lt;i&gt;G&lt;/i&gt; : ChaCha20" vertex="1">
+          <mxGeometry height="16" width="328" x="8388.1129284559" y="2100.5128347051714" as="geometry" />
+        </mxCell>
+        <mxCell id="17" parent="1" style="rounded=0;whiteSpace=wrap;html=1;fontSize=11;fontFamily=Georgia;strokeColor=#000000;fontColor=#000000;text;html=1;align=left;verticalAlign=middle;fontSize=9;fillColor=none;strokeColor=none;align=center;" value="KEMs : HQC / ML-KEM &amp;nbsp;·&amp;nbsp; 15.2 / 3.8 KiB, once" vertex="1">
+          <mxGeometry height="16" width="328" x="8388.1129284559" y="2118.5128347051714" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

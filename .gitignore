@@ -1,13 +1,23 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
+*.py[cod]
+*.egg-info/
 .ipynb_checkpoints/
-.DS_Store
+.venv/
+.env
 
-# generated artifacts (regenerated from results/ by experiments/figures.py and tables.py)
-results/figs/
-results/tables/
+# Native libraries (liboqs is built locally; FedGT's decoder is not redistributed)
+*.dll
+*.so
+*.dylib
+liboqs/
 
-# local caches / downloaded datasets
+# Datasets (downloaded by torchvision or from Kaggle)
 data/
+
+# Run logs and scratch
 *.log
+*.err
+results/hb_*.txt
+results/**/*.pt
+results/**/checkpoints/

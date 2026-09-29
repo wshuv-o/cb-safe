@@ -1,3 +1,5 @@
+"""Path + environment bootstrap for experiment scripts. Import this first."""
+
 import os
 import sys
 
@@ -12,6 +14,7 @@ RESULTS = os.environ.get("CBSAFE_OUT") or os.path.join(REPO, "results")
 try:
     os.makedirs(RESULTS, exist_ok=True)
 except OSError:
+    # repo is on a read-only mount (e.g. Kaggle /kaggle/input) - use a writable dir
     base = "/kaggle/working" if os.path.isdir("/kaggle/working") else os.getcwd()
     RESULTS = os.path.join(base, "results")
     os.makedirs(RESULTS, exist_ok=True)

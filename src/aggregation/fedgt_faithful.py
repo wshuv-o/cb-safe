@@ -1,3 +1,21 @@
+"""FedGT (Xhemrishi et al., IEEE TIFS 2025): the published detection pipeline,
+ported for a like-for-like comparison at N=30 (the published configuration).
+
+It uses:
+  - their exact hardcoded n=30 parity-check matrix (12 overlapping group tests),
+  - binary group tests via KMeans clustering on (group recall, group PCA), the
+    highest-recall cluster marked clean (verbatim perform_clustering_and_testing),
+  - their BCJR trellis MAP decoder (their compiled C, called via ctypes; the
+    BCJR_4_python library and fedgt_H30.npy come from the FedGT authors' code and
+    are not redistributed here),
+  - flagging exactly nm_est clients (lowest LLR), nm_est from their #-negative-tests
+    lookup table.
+
+The group test statistic (per-group recall on the server root set) and the group
+PCA feature are computed by the caller (our shared training harness) and passed in,
+exactly as FedGT computes them from group-aggregated models.
+"""
+
 from __future__ import annotations
 
 import ctypes
@@ -12,6 +30,7 @@ _HERE = os.path.dirname(os.path.abspath(__file__))
 _DLL = os.path.join(_HERE, "BCJR_4_python.dll")
 _H30 = os.path.join(_HERE, "fedgt_H30.npy")
 
+# FedGT's #-negative-tests -> estimated-#-malicious lookup (their group_test.py, n=30)
 LOOK_UP_NM_30 = [8, 8, 8, 8, 7, 6, 5, 5, 4, 3, 2, 1, 0]
 
 
@@ -34,6 +53,7 @@ class GroupTestFaithful:
         self.ChannelMatrix = np.array([[1 - P_FA_test, P_FA_test],
                                        [P_MD_test, 1 - P_MD_test]], dtype=np.double)
 
+    # ---- verbatim from FedGT/defence/group_test.py ----
     def _dunn_index(self, data, labels, centroids):
         num_samples = len(data)
         unique_labels = np.unique(labels)
@@ -69,6 +89,8 @@ class GroupTestFaithful:
         for k, clst in enumerate(poss):
             km = KMeans(n_clusters=clst, n_init=10, random_state=0).fit(X)
             all_labels[k, :] = km.labels_
+            # KMeans can collapse to <clst effective labels on degenerate (all-chance)
+            # group features; silhouette_score then errors. Guard it (their code omits this).
             s_scores[k] = 0.0 if (clst == 1 or len(np.unique(km.labels_)) < 2) else silhouette_score(X, km.labels_)
             d_scores[k] = self._dunn_index(X, km.labels_, km.cluster_centers_)
         if s_scores.max() < ss_thres:
@@ -117,4 +139,4 @@ class GroupTestFaithful:
             ident = np.where(self.LLRO[0, :] == self.LLRO[0, idx_sort][0, nm_est - 1])[0]
             if len(ident) > 1:
                 self.DEC[0, ident] = 1
-        return np.where(self.DEC[0] == 1)[0]
+        return np.where(self.DEC[0] == 1)[0]      # flagged (defective) client indices
